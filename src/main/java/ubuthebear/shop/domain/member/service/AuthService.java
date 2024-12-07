@@ -16,6 +16,8 @@ import ubuthebear.shop.domain.member.dto.AuthResponse;
 import ubuthebear.shop.domain.member.dto.LoginRequest;
 import ubuthebear.shop.domain.member.dto.SignupRequest;
 import ubuthebear.shop.domain.member.entity.Member;
+import ubuthebear.shop.domain.member.entity.Address;
+import ubuthebear.shop.domain.member.entity.PaymentMethod;
 import ubuthebear.shop.domain.member.entity.Role;
 import ubuthebear.shop.domain.member.repository.MemberRepository;
 import ubuthebear.shop.domain.member.repository.RoleRepository;
@@ -52,6 +54,23 @@ public class AuthService {
         member.setPassword(passwordEncoder.encode(request.getPassword()));
         member.setName(request.getName());
         member.setContact(request.getContact());
+
+        // 배송지 설정 - address 객체를 통해 접근하도록 수정
+        Address address = new Address();
+        address.setMember(member);
+        address.setAddress(request.getAddress().getAddress());
+        address.setCity(request.getAddress().getCity());
+        address.setPostalCode(request.getAddress().getPostalCode()); // 수정된 부분
+        member.getAddresses().add(address);
+
+        // 결제수단 설정
+        PaymentMethod paymentMethod = new PaymentMethod();
+        paymentMethod.setMember(member);
+        paymentMethod.setPaymentType(request.getPaymentMethod().getPaymentType());
+        paymentMethod.setCardNumber(request.getPaymentMethod().getCardNumber());
+        paymentMethod.setExpiryDate(request.getPaymentMethod().getExpiryDate());
+        paymentMethod.setDefault(request.getPaymentMethod().isDefault());
+        member.getPaymentMethods().add(paymentMethod);  // 양방향 관계 설정
 
         // 기본 사용자 역할 설정
         // 1. "ROLE_USER"라는 이름의 Role을 DB에서 찾음

@@ -3,10 +3,8 @@ package ubuthebear.shop.domain.member.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import ubuthebear.shop.domain.member.entity.Member;
+import org.springframework.web.bind.annotation.*;
+import ubuthebear.shop.domain.member.dto.MemberResponse;
 import ubuthebear.shop.domain.member.service.MemberService;
 
 @RestController  // REST API 컨트롤러임을 나타냄
@@ -22,8 +20,7 @@ public class MemberController {
      * @return 현재 로그인한 사용자의 정보
      */
     @GetMapping("/me")
-    public ResponseEntity<Member> getMyInfo(Authentication authentication) {
-        Member member = memberService.getMyInfo(authentication.getName());
-        return ResponseEntity.ok(member);
+    public ResponseEntity<MemberResponse> getMyInfo(Authentication authentication) {
+        return ResponseEntity.ok(memberService.getMyInfo(authentication.getName()));
     }
 }

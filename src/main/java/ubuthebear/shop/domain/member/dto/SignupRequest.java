@@ -1,5 +1,8 @@
 package ubuthebear.shop.domain.member.dto;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,8 +22,21 @@ import lombok.NoArgsConstructor;
 // JSON 데이터를 LoginRequest 객체로 변환할 때 필요 (LoginRequest.java 주석 참고)
 @NoArgsConstructor
 public class SignupRequest {
-    private String username;  // 가입할 사용자의 아이디
-    private String password;  // 가입할 사용자의 비밀번호
-    private String name;      // 가입할 사용자의 실제 이름
-    private String contact;   // 가입할 사용자의 연락처 정보
+    @NotBlank(message = "아이디는 필수입니다.")
+    private String username;        // 가입할 사용자의 아이디
+
+    @Size(min = 8, message = "비밀번호는 8자 이상이어야 합니다.")
+    private String password;        // 가입할 사용자의 비밀번호
+
+    @NotBlank
+    private String name;            // 가입할 사용자의 실제 이름
+
+    @NotBlank
+    private String contact;         // 가입할 사용자의 연락처 정보
+
+    @Valid
+    private AddressRequest address; // 배송지 정보
+
+    @Valid
+    private PaymentMethodRequest paymentMethod; // 결제수단 정보
 }
