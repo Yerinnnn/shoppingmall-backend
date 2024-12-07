@@ -1,4 +1,4 @@
-package ubuthebear.shop.domain.order.controller;
+package ubuthebear.shop.domain.wishlist.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import ubuthebear.shop.domain.order.dto.response.WishlistResponse;
-import ubuthebear.shop.domain.order.service.WishlistService;
+import ubuthebear.shop.domain.wishlist.dto.WishlistResponse;
+import ubuthebear.shop.domain.wishlist.service.WishlistService;
 
 import java.util.List;
 

@@ -1,9 +1,9 @@
-package ubuthebear.shop.domain.order.repository;
+package ubuthebear.shop.domain.wishlist.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ubuthebear.shop.domain.member.entity.Member;
-import ubuthebear.shop.domain.order.entity.Wishlist;
+import ubuthebear.shop.domain.wishlist.entity.Wishlist;
 import ubuthebear.shop.domain.product.entity.Product;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package ubuthebear.shop.domain.order.controller;
+package ubuthebear.shop.domain.cart.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import ubuthebear.shop.domain.order.dto.request.CartRequest;
-import ubuthebear.shop.domain.order.dto.response.CartResponse;
-import ubuthebear.shop.domain.order.service.CartService;
+import ubuthebear.shop.domain.cart.dto.CartRequest;
+import ubuthebear.shop.domain.cart.dto.CartResponse;
+import ubuthebear.shop.domain.cart.service.CartService;
 
 import java.util.List;
 

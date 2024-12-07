@@ -1,7 +1,7 @@
-package ubuthebear.shop.domain.order.dto.response;
+package ubuthebear.shop.domain.cart.dto;
 
 import lombok.Getter;
-import ubuthebear.shop.domain.order.entity.Cart;
+import ubuthebear.shop.domain.cart.entity.Cart;
 
 import java.math.BigDecimal;
 

@@ -1,14 +1,14 @@
-package ubuthebear.shop.domain.order.service;
+package ubuthebear.shop.domain.cart.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ubuthebear.shop.domain.member.entity.Member;
 import ubuthebear.shop.domain.member.repository.MemberRepository;
-import ubuthebear.shop.domain.order.dto.request.CartRequest;
-import ubuthebear.shop.domain.order.dto.response.CartResponse;
-import ubuthebear.shop.domain.order.entity.Cart;
-import ubuthebear.shop.domain.order.repository.CartRepository;
+import ubuthebear.shop.domain.cart.dto.CartRequest;
+import ubuthebear.shop.domain.cart.dto.CartResponse;
+import ubuthebear.shop.domain.cart.entity.Cart;
+import ubuthebear.shop.domain.cart.repository.CartRepository;
 import ubuthebear.shop.domain.product.entity.Product;
 import ubuthebear.shop.domain.product.repository.ProductRepository;
 

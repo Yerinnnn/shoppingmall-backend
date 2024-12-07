@@ -1,13 +1,13 @@
-package ubuthebear.shop.domain.order.service;
+package ubuthebear.shop.domain.wishlist.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ubuthebear.shop.domain.member.entity.Member;
 import ubuthebear.shop.domain.member.repository.MemberRepository;
-import ubuthebear.shop.domain.order.dto.response.WishlistResponse;
-import ubuthebear.shop.domain.order.entity.Wishlist;
-import ubuthebear.shop.domain.order.repository.WishlistRepository;
+import ubuthebear.shop.domain.wishlist.dto.WishlistResponse;
+import ubuthebear.shop.domain.wishlist.entity.Wishlist;
+import ubuthebear.shop.domain.wishlist.repository.WishlistRepository;
 import ubuthebear.shop.domain.product.entity.Product;
 import ubuthebear.shop.domain.product.repository.ProductRepository;
 

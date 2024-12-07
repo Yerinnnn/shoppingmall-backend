@@ -1,7 +1,7 @@
-package ubuthebear.shop.domain.order.dto.response;
+package ubuthebear.shop.domain.wishlist.dto;
 
 import lombok.Getter;
-import ubuthebear.shop.domain.order.entity.Wishlist;
+import ubuthebear.shop.domain.wishlist.entity.Wishlist;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

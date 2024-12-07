@@ -1,10 +1,11 @@
-package ubuthebear.shop.domain.order.entity;
+package ubuthebear.shop.domain.cart.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import ubuthebear.shop.domain.member.entity.Member;
 import ubuthebear.shop.domain.product.entity.Product;
@@ -12,8 +13,8 @@ import ubuthebear.shop.domain.product.entity.Product;
 import java.time.LocalDateTime;
 
 /**
- * 찜 목록(위시리스트) 정보를 저장하는 엔티티 클래스
- * 회원이 관심있는 상품을 저장하고 관리
+ * 장바구니 상품 정보를 저장하는 엔티티 클래스
+ * 회원별 장바구니에 담긴 상품과 수량 정보를 관리
  *
  * @author ubuthebear
  * @version 1.0
@@ -21,25 +22,22 @@ import java.time.LocalDateTime;
  * @see Product
  */
 @Entity
-@Table(name = "wishlists",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"member_id", "product_id"})  // 회원당 동일 상품은 한 번만 찜 가능
-        })
+@Table(name = "cart_items")  // 테이블명을 cart_items로 지정
 @Getter @Setter
 @NoArgsConstructor  // 파라미터가 없는 기본 생성자를 생성
-@EntityListeners(AuditingEntityListener.class)  // JPA Auditing 기능을 사용하여 생성 시간 자동 관리
-public class Wishlist {
+@EntityListeners(AuditingEntityListener.class)
+public class Cart {
 
     /**
-     * 위시리스트 아이템의 고유 식별자
+     * 장바구니 아이템의 고유 식별자
      * 자동 증가 전략을 사용하는 기본키
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long wishlistId;
+    private Long cartId;
 
     /**
-     * 위시리스트를 소유한 회원 정보
+     * 장바구니를 소유한 회원 정보
      * 지연 로딩(LAZY)을 사용하여 성능 최적화
      * 회원(Member)과 다대일(N:1) 관계
      */
@@ -48,7 +46,7 @@ public class Wishlist {
     private Member member;
 
     /**
-     * 위시리스트에 담긴 상품 정보
+     * 장바구니에 담긴 상품 정보
      * 지연 로딩(LAZY)을 사용하여 성능 최적화
      * 상품(Product)과 다대일(N:1) 관계
      */
@@ -57,11 +55,25 @@ public class Wishlist {
     private Product product;
 
     /**
-     * 위시리스트 아이템 생성 일시
+     * 장바구니에 담긴 상품의 수량
+     * null이 될 수 없음 (필수 입력 값)
+     */
+    @Column(nullable = false)
+    private Integer quantity;
+
+    /**
+     * 장바구니 아이템 생성 일시
      * JPA Auditing을 통해 자동으로 설정
      * 한번 저장된 후에는 수정 불가
      */
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    /**
+     * 장바구니 아이템 수정 일시
+     * JPA Auditing을 통해 자동으로 업데이트
+     */
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 }
