@@ -45,6 +45,15 @@ public class OrderController {
         return ResponseEntity.ok(orderService.createOrder(authentication.getName(), request));
     }
 
+    /**
+     * 주문 취소 및 환불처리
+     * POST /api/orders/{orderId}/cancel
+     *
+     * @param authentication 인증 정보
+     * @param orderId 취소할 주문 ID
+     * @return 취소된 주문 정보
+     * @throws RuntimeException 취소 불가능한 상태이거나 권한이 없는 경우
+     */
     @Operation(summary = "주문 취소", description = "주문을 취소합니다.")
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<OrderResponse> cancelOrder(
@@ -53,17 +62,50 @@ public class OrderController {
         return ResponseEntity.ok(orderService.cancelOrder(authentication.getName(), orderId));
     }
 
+    /**
+     * 사용자의 주문 목록 조회
+     * GET /api/orders
+     *
+     * @param authentication 인증 정보
+     * @return 주문 목록
+     */
     @Operation(summary = "내 주문 목록 조회", description = "자신의 주문 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<List<OrderResponse>> getMyOrders(Authentication authentication) {
         return ResponseEntity.ok(orderService.getMyOrders(authentication.getName()));
     }
 
+    /**
+     * 주문 상세 정보 조회
+     * GET /api/orders/{orderId}
+     *
+     * @param authentication 인증 정보
+     * @param orderId 조회할 주문 ID
+     * @return 주문 상세 정보
+     * @throws RuntimeException 주문이 존재하지 않거나 권한이 없는 경우
+     */
     @Operation(summary = "주문 상세 조회", description = "특정 주문의 상세 정보를 조회합니다.")
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponse> getOrder(
             Authentication authentication,
             @PathVariable Long orderId) {
         return ResponseEntity.ok(orderService.getOrder(authentication.getName(), orderId));
+    }
+
+    /**
+     * 주문 구매확정 및 포인트 적립
+     * POST /api/orders/{orderId}/confirm
+     *
+     * @param authentication 인증 정보
+     * @param orderId 구매확정할 주문 ID
+     * @return 구매확정된 주문 정보
+     * @throws RuntimeException 구매확정 불가능한 상태이거나 권한이 없는 경우
+     */
+    @Operation(summary = "주문 구매확정", description = "주문을 구매확정 처리하고 포인트를 적립합니다.")
+    @PostMapping("/{orderId}/confirm")
+    public ResponseEntity<OrderResponse> confirmOrder(
+            Authentication authentication,
+            @PathVariable Long orderId) {
+        return ResponseEntity.ok(orderService.confirmOrder(authentication.getName(), orderId));
     }
 }

@@ -3,9 +3,11 @@ package ubuthebear.shop.domain.order.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ubuthebear.shop.domain.member.dto.PointBalanceResponse;
 import ubuthebear.shop.domain.member.entity.Address;
 import ubuthebear.shop.domain.member.entity.Member;
 import ubuthebear.shop.domain.member.entity.PaymentMethod;
+import ubuthebear.shop.domain.member.service.LoyaltyPointService;
 import ubuthebear.shop.domain.order.dto.OrderItemRequest;
 import ubuthebear.shop.domain.order.dto.OrderRequest;
 import ubuthebear.shop.domain.order.dto.OrderResponse;
@@ -15,6 +17,8 @@ import ubuthebear.shop.domain.member.repository.MemberRepository;
 import ubuthebear.shop.domain.product.entity.Product;
 import ubuthebear.shop.domain.product.repository.ProductRepository;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +36,9 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
+    private final LoyaltyPointService loyaltyPointService;
+
+    private static final BigDecimal POINT_EARN_RATE = new BigDecimal("0.01"); // 1% 적립
 
     /**
      * 새로운 주문을 생성
@@ -47,8 +54,17 @@ public class OrderService {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
+        // 포인트 사용 검증
+        if (request.getUsePoints().compareTo(BigDecimal.ZERO) > 0) {
+            PointBalanceResponse pointBalance = loyaltyPointService.getPointBalance(username);
+            if (pointBalance.getBalance().compareTo(request.getUsePoints()) < 0) {
+                throw new RuntimeException("Insufficient points");
+            }
+        }
+
         Order order = new Order();
         order.setMember(member);
+        order.setUsedPoints(request.getUsePoints());
 
         // 배송지 설정
         Address deliveryAddress = member.getAddresses().stream()
@@ -64,28 +80,30 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Payment method not found"));
         order.setPaymentMethod(paymentMethod);
 
-        // 주문 상품 추가
-        for (OrderItemRequest itemRequest : request.getItems()) {
-            Product product = productRepository.findById(itemRequest.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found"));
+        // 주문 상품 추가 및 총액 계산
+        addOrderItems(order, request.getItems());
+        order.calculateTotalAmount(); // 포인트 차감된 최종 금액 계산
 
-            // 재고 확인
-            if (product.getStockQuantity() < itemRequest.getQuantity()) {
-                throw new RuntimeException("Insufficient stock");
-            }
+        // 적립 예정 포인트 계산 (주문 금액의 1%)
+        BigDecimal earnablePoints = order.getTotalAmount()
+                .multiply(POINT_EARN_RATE)
+                .setScale(0, RoundingMode.FLOOR); // 소수점 버림
+        order.setEarnedPoints(earnablePoints);
 
-            OrderItem orderItem = new OrderItem();
-            orderItem.setProduct(product);
-            orderItem.setQuantity(itemRequest.getQuantity());
-            orderItem.setPrice(product.getPrice());
-            order.addOrderItem(orderItem);
+        // 주문 저장
+        Order savedOrder = orderRepository.save(order);
 
-            // 재고 감소
-            product.setStockQuantity(product.getStockQuantity() - itemRequest.getQuantity());
+        // 포인트 사용 처리
+        if (request.getUsePoints().compareTo(BigDecimal.ZERO) > 0) {
+            loyaltyPointService.usePoints(
+                    username,
+                    request.getUsePoints(),
+                    "주문 결제 시 포인트 사용",
+                    savedOrder
+            );
         }
 
-        order.calculateTotalAmount();
-        return new OrderResponse(orderRepository.save(order));
+        return new OrderResponse(savedOrder);
     }
 
     /**
@@ -116,8 +134,80 @@ public class OrderService {
             product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
         });
 
+        // 사용한 포인트 환급
+        if (order.getUsedPoints().compareTo(BigDecimal.ZERO) > 0) {
+            loyaltyPointService.cancelPointUse(
+                    username,
+                    order.getUsedPoints(),
+                    "주문 취소로 인한 포인트 환급",
+                    order
+            );
+        }
+
         order.setStatus(OrderStatus.CANCELLED);
         return new OrderResponse(order);
+    }
+
+    /**
+     * 주문 구매확정 및 포인트 적립
+     * PAID/DELIVERED 상태에서만 가능
+     *
+     * @param username 주문자 ID
+     * @param orderId 확정할 주문 ID
+     * @return 구매확정된 주문
+     * @throws RuntimeException 주문 없음, 권한 없음, 확정 불가 상태
+     */
+    @Transactional
+    public OrderResponse confirmOrder(String username, Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (!order.getMember().getUsername().equals(username)) {
+            throw new RuntimeException("Unauthorized access");
+        }
+
+        // PAID, DELIVERED 상태에서 구매확정 가능
+        if (order.getStatus() != OrderStatus.PAID &&
+                order.getStatus() != OrderStatus.DELIVERED) {
+            throw new RuntimeException("Order cannot be confirmed. Current status: " + order.getStatus());
+        }
+
+        // 포인트 적립
+        if (order.getEarnedPoints().compareTo(BigDecimal.ZERO) > 0) {
+            loyaltyPointService.earnPoints(
+                    username,
+                    order.getEarnedPoints(),
+                    String.format("주문 %s 구매확정 포인트 적립", order.getOrderId()),
+                    order
+            );
+        }
+
+        order.setStatus(OrderStatus.COMPLETED);
+        return new OrderResponse(orderRepository.save(order));
+    }
+
+    /**
+     * 주문상품 추가 및 재고 차감
+     * 재고 부족시 예외 발생
+     */
+    private void addOrderItems(Order order, List<OrderItemRequest> items) {
+        for (OrderItemRequest itemRequest : items) {
+            Product product = productRepository.findById(itemRequest.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
+
+            // 재고 확인
+            if (product.getStockQuantity() < itemRequest.getQuantity()) {
+                throw new RuntimeException("Insufficient stock");
+            }
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(product);
+            orderItem.setQuantity(itemRequest.getQuantity());
+            orderItem.setPrice(product.getPrice());
+            order.addOrderItem(orderItem);
+
+            product.setStockQuantity(product.getStockQuantity() - itemRequest.getQuantity());
+        }
     }
 
     /**
