@@ -55,7 +55,7 @@ public class ShippingService {
         shipping.setShippingMessage(request.getShippingMessage());
         shipping.setRecipientName(order.getDeliveryAddress().getMember().getName());
         shipping.setRecipientPhone(order.getDeliveryAddress().getMember().getContact());
-        shipping.setShippingAddress(order.getDeliveryAddress().getAddress());
+        shipping.setShippingAddress(order.getDeliveryAddress().getFullAddress());
         shipping.setEstimatedDeliveryDate(LocalDateTime.now().plusDays(3));
 
         order.setStatus(OrderStatus.SHIPPING);

@@ -58,9 +58,9 @@ public class AuthService {
         // 배송지 설정 - address 객체를 통해 접근하도록 수정
         Address address = new Address();
         address.setMember(member);
-        address.setAddress(request.getAddress().getAddress());
-        address.setCity(request.getAddress().getCity());
-        address.setPostalCode(request.getAddress().getPostalCode()); // 수정된 부분
+        address.setPostalCode(request.getAddress().getPostalCode());
+        address.setRoadAddress(request.getAddress().getRoadAddress());
+        address.setDetailAddress(request.getAddress().getDetailAddress());
         member.getAddresses().add(address);
 
         // 결제수단 설정
@@ -85,7 +85,8 @@ public class AuthService {
 
         return new AuthResponse(
                 "회원가입 성공",
-                request.getUsername()
+                request.getUsername(),
+                request.getName()
         );
     }
 
@@ -108,7 +109,7 @@ public class AuthService {
 
             // JWT 토큰 생성 및 반환
             String token = jwtTokenProvider.generateToken(member.getUsername());
-            return new AuthResponse(token, member.getUsername());
+            return new AuthResponse(token, member.getUsername(), member.getName());
         } catch (Exception e) {
             System.out.println("로그인 에러: " + e.getMessage());
             e.printStackTrace();

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddressRequest {
-    private String address;     // 상세 주소
-    private String city;        // 도시
-    private String postalCode;  // 우편번호
+    private String postalCode;      // 우편번호
+    private String roadAddress;     // 도로명 주소
+    private String detailAddress;   // 상세 주소
 }

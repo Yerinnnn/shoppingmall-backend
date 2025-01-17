@@ -43,7 +43,7 @@ public class OrderResponse {
         this.items = order.getOrderItems().stream()
                 .map(OrderItemResponse::new)
                 .collect(Collectors.toList());
-        this.deliveryAddress = order.getDeliveryAddress().getAddress();
+        this.deliveryAddress = order.getDeliveryAddress().getFullAddress();
         this.paymentMethod = order.getPaymentMethod().getPaymentType();
         this.createdAt = order.getCreatedAt();
         // 주문번호 생성 규칙: "ORD" + 날짜(epoch일) + 주문ID
