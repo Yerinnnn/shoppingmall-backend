@@ -1,6 +1,7 @@
 package ubuthebear.shop.domain.member.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,9 +30,16 @@ public class Address {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private String address;
-    private String city;
-    private String postalCode;
+    @Column(length = 5, nullable = false)
+    private String postalCode;      // 우편번호
+
+    @Column(nullable = false)
+    private String roadAddress;     // 도로명 주소
+
+    private String detailAddress;   // 상세 주소
+
+    @Column(length = 500)
+    private String fullAddress;     // 전체 주소
 
     @CreatedDate
     @Column(updatable = false)
@@ -39,4 +47,14 @@ public class Address {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @Builder
+    public Address(Member member, String postalCode, String roadAddress,
+                   String detailAddress) {
+        this.member = member;
+        this.postalCode = postalCode;
+        this.roadAddress = roadAddress;
+        this.detailAddress = detailAddress;
+        this.fullAddress = roadAddress + " " + detailAddress;
+    }
 }
