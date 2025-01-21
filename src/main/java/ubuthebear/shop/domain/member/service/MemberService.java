@@ -2,7 +2,11 @@ package ubuthebear.shop.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ubuthebear.shop.domain.member.dto.AddressRequest;
+import ubuthebear.shop.domain.member.dto.AddressResponse;
 import ubuthebear.shop.domain.member.dto.MemberResponse;
+import ubuthebear.shop.domain.member.entity.Address;
 import ubuthebear.shop.domain.member.entity.Member;
 import ubuthebear.shop.domain.member.repository.MemberRepository;
 
@@ -28,5 +32,44 @@ public class MemberService {
         // 데이터 변환/가공이 용이
         // API 스펙 변경이 엔티티에 영향을 주지 않음
         return new MemberResponse(member);
+    }
+
+    /**
+     * 새로운 배송지를 추가하는 메서드
+     * @param username 사용자 아이디
+     * @param request 배송지 정보
+     * @return 추가된 배송지 정보
+     */
+    @Transactional
+    public AddressResponse addAddress(String username, AddressRequest request) {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+        Address address = new Address();
+        address.setMember(member);
+        address.setPostalCode(request.getPostalCode());
+        address.setRoadAddress(request.getRoadAddress());
+        address.setDetailAddress(request.getDetailAddress());
+        address.setFullAddress(request.getRoadAddress() + " " + request.getDetailAddress());
+
+        member.getAddresses().add(address);
+        memberRepository.save(member);  // Address는 cascade로 자동 저장
+
+        return new AddressResponse(address);
+    }
+
+    /**
+     * 배송지를 삭제하는 메서드
+     * @param username 사용자 아이디
+     * @param addressId 삭제할 배송지 ID
+     */
+    @Transactional
+    public void deleteAddress(String username, Long addressId) {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+
+        member.getAddresses().removeIf(address ->
+                address.getAddressId().equals(addressId));
+        memberRepository.save(member);
     }
 }
