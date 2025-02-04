@@ -22,10 +22,14 @@ public class PaymentRequest {
     private Long orderId;
 
     /**
-     * PG사에서 발급받은 결제 토큰
-     * 실제 결제 처리 시 사용되는 일회성 토큰
-     * 보안상의 이유로 결제 시점에만 유효
-     * null 허용 (PG사 연동 방식에 따라 선택적으로 사용)
+     * 토스페이먼츠 결제 키
      */
-    private String paymentToken;
+    @NotNull(message = "결제 키는 필수입니다")
+    private String paymentKey;
+
+    /**
+     * 결제 금액 (검증용)
+     */
+    @NotNull(message = "결제 금액은 필수입니다")
+    private Long amount;
 }

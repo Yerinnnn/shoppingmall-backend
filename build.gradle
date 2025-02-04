@@ -47,6 +47,13 @@ dependencies {
 
 	// Configuration Processor
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+	// JSON 처리를 위한 의존성
+	implementation 'org.json:json:20230227'
+
+	// Test
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
 }
 
 tasks.named('test') {

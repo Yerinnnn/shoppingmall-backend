@@ -22,4 +22,5 @@ import lombok.NoArgsConstructor;
 public class AuthResponse {
     private String token;     // JWT 인증 토큰
     private String username;  // 인증된 사용자의 아이디
+    private String name;
 }

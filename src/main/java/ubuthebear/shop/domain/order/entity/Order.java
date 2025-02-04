@@ -71,12 +71,12 @@ public class Order {
     @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;
 
-    /**
-     * 결제 정보
-     * 결제와 함께 저장, 수정, 삭제가 이루어짐 (CascadeType.ALL)
-     */
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
-    private Payment payment;
+//    /**
+//     * 결제 정보
+//     * 결제와 함께 저장, 수정, 삭제가 이루어짐 (CascadeType.ALL)
+//     */
+//    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+//    private Payment payment;
 
     /**
      * 주문 상태

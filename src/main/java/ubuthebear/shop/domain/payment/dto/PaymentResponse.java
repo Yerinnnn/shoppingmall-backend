@@ -18,11 +18,20 @@ import java.time.LocalDateTime;
  */
 @Getter
 public class PaymentResponse {
-    private final Long paymentId;        // 결제 고유 식별자
-    private final String transactionId;  // PG사 거래 고유번호
-    private final BigDecimal amount;     // 결제 금액
-    private final PaymentStatus status;  // 결제 상태
-    private final LocalDateTime createdAt; // 결제 생성 일시
+    private Long id;
+    private String paymentKey;
+    private String orderId;
+    private BigDecimal amount;
+    private PaymentStatus status;
+    private String paymentMethod;
+    private String cardNumber;
+    private String cardCompany;
+    private Integer installmentPlanMonths;
+    private LocalDateTime paidAt;
+    private LocalDateTime cancelledAt;
+    private String failureReason;
+    private String cancelReason;
+    private LocalDateTime createdAt;
 
     /**
      * Payment 엔티티를 PaymentResponse DTO로 변환하는 생성자
@@ -31,10 +40,19 @@ public class PaymentResponse {
      * @param payment 변환할 Payment 엔티티
      */
     public PaymentResponse(Payment payment) {
-        this.paymentId = payment.getPaymentId();
-        this.transactionId = payment.getTransactionId();
+        this.id = payment.getId();
+        this.paymentKey = payment.getPaymentKey();
+        this.orderId = payment.getOrderId();
         this.amount = payment.getAmount();
         this.status = payment.getStatus();
+        this.paymentMethod = payment.getPaymentMethod();
+        this.cardNumber = payment.getCardNumber();
+        this.cardCompany = payment.getCardCompany();
+        this.installmentPlanMonths = payment.getInstallmentPlanMonths();
+        this.paidAt = payment.getPaidAt();
+        this.cancelledAt = payment.getCancelledAt();
+        this.failureReason = payment.getFailureReason();
+        this.cancelReason = payment.getCancelReason();
         this.createdAt = payment.getCreatedAt();
     }
 }

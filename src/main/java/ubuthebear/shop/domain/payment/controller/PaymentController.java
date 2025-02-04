@@ -4,65 +4,118 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import ubuthebear.shop.domain.payment.dto.PaymentRequest;
-import ubuthebear.shop.domain.payment.dto.PaymentResponse;
+import ubuthebear.shop.domain.payment.dto.*;
 import ubuthebear.shop.domain.payment.service.PaymentService;
 
 import java.util.List;
 
-/**
- * 결제 관련 REST API를 제공하는 컨트롤러
- * 결제 처리, 환불, 조회 등의 엔드포인트를 정의
- *
- * @author ubuthebear
- * @version 1.0
- */
 @Tag(name = "Payment", description = "결제 관리 API")
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentController {
 
     private final PaymentService paymentService;
 
     /**
-     * 결제를 처리하는 API 엔드포인트
-     * POST /api/payments/process
-     *
-     * @param authentication Spring Security 인증 객체
-     * @param request 결제 처리 요청 정보
-     * @return ResponseEntity<PaymentResponse> 처리된 결제 정보
+     * 결제 준비 API
+     * 클라이언트 키와 주문 정보를 반환
      */
-    @Operation(summary = "결제 처리", description = "주문에 대한 결제를 처리합니다.")
-    @PostMapping("/process")
-    public ResponseEntity<PaymentResponse> processPayment(
+    @Operation(summary = "결제 준비", description = "결제 준비 및 클라이언트 키 발급")
+    @PostMapping("/prepare")
+    public ResponseEntity<PaymentPrepareResponse> preparePayment(
             Authentication authentication,
-            @Valid @RequestBody PaymentRequest request) {
-        return ResponseEntity.ok(paymentService.processPayment(authentication.getName(), request));
+            @Valid @RequestBody PaymentPrepareRequest request
+    ) {
+        log.info("Payment preparation requested - orderId: {}, amount: {}",
+                request.getOrderId(), request.getAmount());
+
+        try {
+            PaymentPrepareResponse response = paymentService.preparePayment(
+                    authentication.getName(),
+                    request
+            );
+
+            log.info("Payment preparation successful - orderId: {}", request.getOrderId());
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Payment preparation failed - orderId: {}, error: {}",
+                    request.getOrderId(), e.getMessage(), e);
+            throw e;
+        }
     }
 
-    @Operation(summary = "결제 환불", description = "결제를 환불 처리합니다.")
-    @PostMapping("/{orderId}/refund")
-    public ResponseEntity<PaymentResponse> refundPayment(
+    /**
+     * 결제 승인 API
+     * 클라이언트로부터 받은 결제 정보로 최종 결제를 승인
+     */
+    @Operation(summary = "결제 승인", description = "결제 승인 처리")
+    @PostMapping("/confirm")
+    public ResponseEntity<PaymentResponse> confirmPayment(
+            @Valid @RequestBody PaymentConfirmRequest request
+    ) {
+        return ResponseEntity.ok(paymentService.confirmPayment(request));
+    }
+
+    /**
+     * 결제 취소 API
+     */
+    @Operation(summary = "결제 취소", description = "결제 취소 처리")
+    @PostMapping("/{paymentId}/cancel")
+    public ResponseEntity<PaymentResponse> cancelPayment(
             Authentication authentication,
-            @PathVariable Long orderId) {
-        return ResponseEntity.ok(paymentService.refundPayment(authentication.getName(), orderId));
+            @PathVariable Long paymentId,
+            @Valid @RequestBody PaymentCancelRequest request
+    ) {
+        return ResponseEntity.ok(
+                paymentService.cancelPayment(authentication.getName(), paymentId, request)
+        );
     }
 
-    @Operation(summary = "결제 내역 조회", description = "결제 내역을 조회합니다.")
-    @GetMapping("/history")
-    public ResponseEntity<List<PaymentResponse>> getPaymentHistory(Authentication authentication) {
-        return ResponseEntity.ok(paymentService.getPaymentHistory(authentication.getName()));
-    }
-
-    @Operation(summary = "결제 상세 조회", description = "특정 결제의 상세 정보를 조회합니다.")
+    /**
+     * 결제 상세 정보 조회 API
+     */
+    @Operation(summary = "결제 상세 조회", description = "결제 상세 정보 조회")
     @GetMapping("/{paymentId}")
-    public ResponseEntity<PaymentResponse> getPaymentDetails(
+    public ResponseEntity<PaymentResponse> getPayment(
             Authentication authentication,
-            @PathVariable Long paymentId) {
-        return ResponseEntity.ok(paymentService.getPaymentDetails(authentication.getName(), paymentId));
+            @PathVariable Long paymentId
+    ) {
+        return ResponseEntity.ok(
+                paymentService.getPayment(authentication.getName(), paymentId)
+        );
+    }
+
+    /**
+     * 내 결제 내역 조회 API
+     */
+    @Operation(summary = "내 결제 내역 조회", description = "사용자의 결제 내역 조회")
+    @GetMapping("/my")
+    public ResponseEntity<List<PaymentResponse>> getMyPayments(
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(
+                paymentService.getMyPayments(authentication.getName())
+        );
+    }
+
+    /**
+     * 결제 이력 조회 API
+     */
+    @Operation(summary = "결제 이력 조회", description = "특정 결제의 상태 변경 이력 조회")
+    @GetMapping("/{paymentId}/history")
+    public ResponseEntity<List<PaymentHistoryResponse>> getPaymentHistory(
+            Authentication authentication,
+            @PathVariable Long paymentId
+    ) {
+        return ResponseEntity.ok(
+                paymentService.getPaymentHistory(authentication.getName(), paymentId)
+        );
     }
 }
