@@ -1,0 +1,38 @@
+# 애플리케이션 이름
+spring.application.name=shop
+
+# 데이터베이스 설정
+spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+spring.jpa.database-platform=org.hibernate.dialect.MariaDBDialect
+
+# JPA 설정
+# ddl-auto 옵션: create(매번 테이블 새로 생성), update(변경사항만 반영), none(아무것도 하지 않음)
+spring.jpa.hibernate.ddl-auto=update
+# SQL 쿼리 콘솔 출력 여부
+spring.jpa.show-sql=true
+# SQL 쿼리 포맷팅하여 출력
+spring.jpa.properties.hibernate.format_sql=true
+
+# 서버 포트 설정 (기본 8080 포트 사용)
+server.port=${SERVER_PORT:8080}
+
+# 파일 업로드 크기 제한 설정
+spring.servlet.multipart.max-file-size=${MAX_FILE_SIZE:10MB}
+spring.servlet.multipart.max-request-size=${MAX_REQUEST_SIZE:10MB}
+
+# 인코딩 설정
+server.servlet.encoding.charset=UTF-8
+server.servlet.encoding.force=true
+
+# JWT 설정
+jwt.secret=${JWT_SECRET}
+jwt.token-validity-in-seconds=${JWT_VALIDITY:86400}
+
+# Toss Payments 설정
+toss.payments.client.key=${CLIENT_KEY}
+toss.payments.secret.key=${SECRET_KEY}
+toss.payments.success.url=${SERVER_PORT:3000}/payments/success
+toss.payments.fail.url=${SERVER_PORT:3000}/payments/fail
