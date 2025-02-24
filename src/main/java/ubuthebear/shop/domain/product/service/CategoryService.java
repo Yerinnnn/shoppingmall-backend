@@ -1,6 +1,7 @@
 package ubuthebear.shop.domain.product.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ubuthebear.shop.domain.product.dto.request.CategoryRequest;
@@ -36,6 +37,7 @@ public class CategoryService {
      * @throws RuntimeException 동일한 이름의 카테고리가 이미 존재하는 경우
      */
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CategoryResponse createCategory(CategoryRequest request) {
         if (categoryRepository.existsByName(request.getName())) {
             throw new RuntimeException("Category already exists");

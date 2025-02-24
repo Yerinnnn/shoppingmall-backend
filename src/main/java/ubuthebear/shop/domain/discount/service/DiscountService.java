@@ -1,6 +1,7 @@
 package ubuthebear.shop.domain.discount.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ubuthebear.shop.domain.discount.dto.*;
@@ -33,6 +34,7 @@ public class DiscountService {
      * @param request 할인 정책 생성 요청 정보
      * @return DiscountResponse 생성된 할인 정책 정보
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public DiscountResponse createDiscount(DiscountRequest request) {
         Discount discount = new Discount();

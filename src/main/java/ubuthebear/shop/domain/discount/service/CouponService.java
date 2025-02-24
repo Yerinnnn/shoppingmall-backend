@@ -1,6 +1,7 @@
 package ubuthebear.shop.domain.discount.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ubuthebear.shop.domain.discount.dto.CouponApplicationResponse;
@@ -43,6 +44,7 @@ public class CouponService {
      * @return CouponResponse 생성된 쿠폰 정보
      * @throws RuntimeException 할인 정책이나 회원을 찾을 수 없는 경우
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public CouponResponse createCoupon(CouponRequest request) {
         Discount discount = discountRepository.findById(request.getDiscountId())

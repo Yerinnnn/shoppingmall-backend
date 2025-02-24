@@ -1,6 +1,7 @@
 package ubuthebear.shop.domain.product.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ubuthebear.shop.domain.product.dto.request.ProductRequest;
@@ -45,6 +46,7 @@ public class ProductService {
      * @throws RuntimeException 카테고리를 찾을 수 없는 경우
      */
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ProductResponse createProduct(ProductRequest request) {
         // 1. 카테고리 찾기
         Category category = categoryRepository.findById(request.getCategoryId())
