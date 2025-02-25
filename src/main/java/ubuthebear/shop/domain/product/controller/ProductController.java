@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ubuthebear.shop.domain.product.dto.request.ProductRequest;
 import ubuthebear.shop.domain.product.dto.response.ProductDetailResponse;
@@ -36,7 +37,7 @@ public class ProductController {
     private final ProductService productService;
 
     /**
-     * 새로운 상품을 등록\
+     * 새로운 상품을 등록
      * HTTP POST /api/products
      *
      * @param request 상품 등록 요청 정보 {@link ProductRequest}
@@ -46,6 +47,7 @@ public class ProductController {
     // @Operation : 각 API 엔드포인트의 설명을 위한 Swagger/OpenAPI 어노테이션
     @Operation(summary = "상품 등록", description = "새로운 상품을 등록합니다.")
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest request) {
         return ResponseEntity.ok(productService.createProduct(request));
     }
@@ -111,9 +113,14 @@ public class ProductController {
      */
     @Operation(summary = "상품 수정", description = "상품 정보를 수정합니다.")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> updateProduct(
             @Parameter(description = "상품 ID", required = true) @PathVariable Long id,
             @RequestBody ProductRequest request) {
+        // id 유효성 검사 추가
+        if (id == null) {
+            throw new IllegalArgumentException("Product ID must not be null");
+        }
         return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 
@@ -126,6 +133,7 @@ public class ProductController {
      */
     @Operation(summary = "상품 삭제", description = "상품을 삭제합니다.")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProduct(
             @Parameter(description = "상품 ID", required = true) @PathVariable Long id) {
         productService.deleteProduct(id);

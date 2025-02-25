@@ -46,7 +46,6 @@ public class ProductService {
      * @throws RuntimeException 카테고리를 찾을 수 없는 경우
      */
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
     public ProductResponse createProduct(ProductRequest request) {
         // 1. 카테고리 찾기
         Category category = categoryRepository.findById(request.getCategoryId())
@@ -156,7 +155,33 @@ public class ProductService {
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-        // TODO: 상품 업데이트 로직 구현
+
+        // 상품 기본 정보 업데이트
+        product.setName(request.getName());
+        product.setPrice(request.getPrice());
+        product.setDescription(request.getDescription());
+        product.setStockQuantity(request.getStockQuantity());
+
+        // 카테고리 업데이트
+        if (!product.getCategory().getCategoryId().equals(request.getCategoryId())) {
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
+            product.setCategory(category);
+        }
+
+        // 상품 상세 정보 업데이트
+        ProductDetail detail = product.getProductDetail();
+        if (detail != null) {
+            detail.setManufacturer(request.getManufacturer());
+            detail.setOrigin(request.getOrigin());
+            detail.setMaterial(request.getMaterial());
+            detail.setSize(request.getSize());
+            detail.setWeight(request.getWeight());
+        }
+
+        // 변경사항 저장
+        product = productRepository.save(product);
+
         return new ProductResponse(product);
     }
 
