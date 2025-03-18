@@ -3,6 +3,7 @@ package ubuthebear.shop.domain.order.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ import java.util.List;
  * @author ubuthebear
  * @version 1.0
  */
+@Slf4j
 @Tag(name = "Order", description = "주문 관리 API")
 @RestController
 @RequestMapping("/api/orders")
@@ -42,6 +44,7 @@ public class OrderController {
     public ResponseEntity<OrderResponse> createOrder(
             Authentication authentication,
             @Valid @RequestBody OrderRequest request) {
+        log.info("Received order request: {}", request);
         return ResponseEntity.ok(orderService.createOrder(authentication.getName(), request));
     }
 

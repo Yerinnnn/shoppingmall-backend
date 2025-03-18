@@ -40,6 +40,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
 
+    @Column(unique = true)
+    private String orderNumber;
+
     /**
      * 주문한 회원 정보
      * 지연 로딩(LAZY)을 사용하여 성능 최적화

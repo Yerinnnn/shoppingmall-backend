@@ -19,6 +19,8 @@ import ubuthebear.shop.domain.product.repository.ProductRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,6 +92,10 @@ public class OrderService {
                 .setScale(0, RoundingMode.FLOOR); // 소수점 버림
         order.setEarnedPoints(earnablePoints);
 
+        // 주문번호 생성 및 설정
+        String orderNumber = generateOrderNumber();
+        order.setOrderNumber(orderNumber);
+
         // 주문 저장
         Order savedOrder = orderRepository.save(order);
 
@@ -104,6 +110,15 @@ public class OrderService {
         }
 
         return new OrderResponse(savedOrder);
+    }
+
+    // 주문번호 생성 메서드
+    private String generateOrderNumber() {
+        LocalDateTime now = LocalDateTime.now();
+        String datePart = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        // 고유성을 위한 랜덤 또는 시퀀스 번호
+        String randomPart = String.format("%06d", (int)(Math.random() * 1000000));
+        return "ORD" + datePart + randomPart;
     }
 
     /**
