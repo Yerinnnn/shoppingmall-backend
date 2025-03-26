@@ -1,6 +1,7 @@
 package ubuthebear.shop.domain.shipping.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ubuthebear.shop.domain.order.entity.Order;
@@ -73,6 +74,7 @@ public class ShippingService {
      * @throws RuntimeException 배송 정보를 찾을 수 없는 경우
      */
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ShippingResponse updateShippingStatus(Long shippingId, ShippingStatus newStatus) {
         Shipping shipping = shippingRepository.findById(shippingId)
                 .orElseThrow(() -> new RuntimeException("Shipping not found"));

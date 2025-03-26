@@ -8,6 +8,7 @@ import ubuthebear.shop.domain.order.entity.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 주문 정보에 대한 데이터베이스 접근을 담당하는 리포지토리
@@ -21,6 +22,15 @@ import java.util.List;
  */
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
+    /**
+     * 주문번호로 주문을 조회
+     *
+     * @param orderNumber 조회할 주문번호
+     * @return Optional<Order> 조회된 주문 정보 (없으면 빈 Optional)
+     * @throws org.springframework.dao.DataAccessException 데이터베이스 접근 중 오류 발생 시
+     */
+    Optional<Order> findByOrderNumber(String orderNumber);
+
     /**
      * 특정 회원의 모든 주문 내역을 조회
      *

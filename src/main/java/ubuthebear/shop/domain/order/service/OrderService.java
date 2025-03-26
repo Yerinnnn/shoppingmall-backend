@@ -19,6 +19,8 @@ import ubuthebear.shop.domain.product.repository.ProductRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,6 +92,10 @@ public class OrderService {
                 .setScale(0, RoundingMode.FLOOR); // 소수점 버림
         order.setEarnedPoints(earnablePoints);
 
+        // 주문번호 생성 및 설정
+        String orderNumber = generateOrderNumber();
+        order.setOrderNumber(orderNumber);
+
         // 주문 저장
         Order savedOrder = orderRepository.save(order);
 
@@ -106,18 +112,27 @@ public class OrderService {
         return new OrderResponse(savedOrder);
     }
 
+    // 주문번호 생성 메서드
+    private String generateOrderNumber() {
+        LocalDateTime now = LocalDateTime.now();
+        String datePart = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        // 고유성을 위한 랜덤 또는 시퀀스 번호
+        String randomPart = String.format("%06d", (int)(Math.random() * 1000000));
+        return "ORD" + datePart + randomPart;
+    }
+
     /**
      * 주문을 취소하고 재고를 복구
      * PENDING 또는 PAID 상태의 주문만 취소 가능
      *
      * @param username 주문자의 사용자명
-     * @param orderId 취소할 주문 ID
+     * @param orderNumber 취소할 주문 번호
      * @return OrderResponse 취소된 주문 정보
      * @throws RuntimeException 주문을 찾을 수 없거나, 권한이 없거나, 취소 불가능한 상태인 경우
      */
     @Transactional
-    public OrderResponse cancelOrder(String username, Long orderId) {
-        Order order = orderRepository.findById(orderId)
+    public OrderResponse cancelOrder(String username, String orderNumber) {
+        Order order = orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         if (!order.getMember().getUsername().equals(username)) {
@@ -153,13 +168,13 @@ public class OrderService {
      * PAID/DELIVERED 상태에서만 가능
      *
      * @param username 주문자 ID
-     * @param orderId 확정할 주문 ID
+     * @param orderNumber 확정할 주문 번호
      * @return 구매확정된 주문
      * @throws RuntimeException 주문 없음, 권한 없음, 확정 불가 상태
      */
     @Transactional
-    public OrderResponse confirmOrder(String username, Long orderId) {
-        Order order = orderRepository.findById(orderId)
+    public OrderResponse confirmOrder(String username, String orderNumber) {
+        Order order = orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         if (!order.getMember().getUsername().equals(username)) {
@@ -177,7 +192,7 @@ public class OrderService {
             loyaltyPointService.earnPoints(
                     username,
                     order.getEarnedPoints(),
-                    String.format("주문 %s 구매확정 포인트 적립", order.getOrderId()),
+                    String.format("주문 %s 구매확정 포인트 적립", order.getOrderNumber()),
                     order
             );
         }
@@ -231,12 +246,12 @@ public class OrderService {
      * 본인의 주문만 조회 가능
      *
      * @param username 사용자명
-     * @param orderId 조회할 주문 ID
+     * @param orderNumber 조회할 주문 번호
      * @return OrderResponse 주문 상세 정보
      * @throws RuntimeException 주문을 찾을 수 없거나 권한이 없는 경우
      */
-    public OrderResponse getOrder(String username, Long orderId) {
-        Order order = orderRepository.findById(orderId)
+    public OrderResponse getOrder(String username, String orderNumber) {
+        Order order = orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         if (!order.getMember().getUsername().equals(username)) {

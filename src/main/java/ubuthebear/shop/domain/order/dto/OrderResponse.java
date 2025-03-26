@@ -38,6 +38,7 @@ public class OrderResponse {
      */
     public OrderResponse(Order order) {
         this.orderId = order.getOrderId();
+        this.orderNumber = order.getOrderNumber();
         this.status = order.getStatus();
         this.totalAmount = order.getTotalAmount();
         this.items = order.getOrderItems().stream()
@@ -46,8 +47,5 @@ public class OrderResponse {
         this.deliveryAddress = order.getDeliveryAddress().getFullAddress();
         this.paymentMethod = order.getPaymentMethod().getPaymentType();
         this.createdAt = order.getCreatedAt();
-        // 주문번호 생성 규칙: "ORD" + 날짜(epoch일) + 주문ID
-        this.orderNumber = String.format("ORD%d%d",
-                order.getCreatedAt().toLocalDate().toEpochDay(), orderId);
     }
 }
