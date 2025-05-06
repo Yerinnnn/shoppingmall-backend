@@ -1,7 +1,6 @@
 package ubuthebear.shop.domain.product.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ubuthebear.shop.domain.product.dto.request.ProductRequest;
@@ -14,6 +13,9 @@ import ubuthebear.shop.domain.product.entity.Product;
 import ubuthebear.shop.domain.product.entity.ProductDetail;
 import ubuthebear.shop.domain.product.repository.ProductRepository;
 import ubuthebear.shop.domain.product.repository.CategoryRepository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -219,5 +221,49 @@ public class ProductService {
                 .stream()
                 .map(ProductResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 관리자용 전체 상품 목록 조회 (페이지네이션, 정렬, 필터링 포함)
+     */
+    public Page<ProductListResponse> getAdminProducts(Pageable pageable, Long categoryId, String keyword) {
+        Page<Product> productPage;
+
+        if (categoryId != null) {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new RuntimeException("카테고리를 찾을 수 없습니다: " + categoryId));
+            productPage = productRepository.findByCategory(category, pageable);
+        } else if (keyword != null && !keyword.isEmpty()) {
+            productPage = productRepository.findByNameContainingOrDescriptionContaining(keyword, keyword, pageable);
+        } else {
+            productPage = productRepository.findAll(pageable);
+        }
+
+        return productPage.map(this::convertToProductListResponse);
+    }
+
+    /**
+     * 상품 재고 수정
+     */
+    public ProductResponse updateStock(Long productId, int quantity) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다: " + productId));
+
+        if (quantity < 0) {
+            throw new IllegalArgumentException("재고 수량은 0 이상이어야 합니다.");
+        }
+
+        product.setStockQuantity(quantity);
+        product = productRepository.save(product);
+
+        return convertToProductResponse(product);
+    }
+
+    private ProductListResponse convertToProductListResponse(Product product) {
+        return new ProductListResponse(product);
+    }
+
+    private ProductResponse convertToProductResponse(Product product) {
+        return new ProductResponse(product);
     }
 }
