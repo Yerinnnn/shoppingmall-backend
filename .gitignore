@@ -36,7 +36,15 @@ out/
 ### VS Code ###
 .vscode/
 
-
+# 설정 파일 보안
 application.properties
-application-prod.properties
-application-dev.properties
+**/application-local.properties
+**/application-prod.properties
+**/application-dev.properties
+**/application-test.properties
+
+src/main/java/ubuthebear/shop/domain/directory_to_text.py
+src/main/java/ubuthebear/shop/domain/order/directory_to_text.py
+src/main/java/ubuthebear/shop/domain/order/order.txt
+src/main/java/ubuthebear/shop/domain/payment/directory_to_text.py
+src/main/java/ubuthebear/shop/domain/payment/payment.txt
