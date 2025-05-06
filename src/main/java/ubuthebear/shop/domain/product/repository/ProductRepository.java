@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import ubuthebear.shop.domain.product.entity.Category;
 import ubuthebear.shop.domain.product.entity.Product;
 
 import org.springframework.data.domain.Pageable;
@@ -68,4 +69,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // 이름으로 검색 + 페이징
     Page<Product> findByNameContaining(String name, Pageable pageable);
+
+    // 이름 또는 설명으로 상품 검색
+    Page<Product> findByNameContainingOrDescriptionContaining(String name, String description, Pageable pageable);
+
+    // 카테고리별 상품 조회
+    Page<Product> findByCategory(Category category, Pageable pageable);
 }
