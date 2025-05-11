@@ -6,7 +6,7 @@
 - **진행 기간**: 2024년 11월 ~ 2025년 4월
 - **목표**: Spring Boot와 React를 활용한 풀스택 쇼핑몰 웹 애플리케이션 개발
 
----
+
 
 ## ⚙️ 기술 스택
 
@@ -15,7 +15,7 @@
 - **DevOps**: AWS EC2, Nginx, GitHub Actions (CI/CD), pm2, Ubuntu
 - **형상관리**: Git & GitHub
 
----
+
 
 ## 💡 주요 기능
 
@@ -27,7 +27,7 @@
 | 관리자 기능 (개발 중) | 상품 관리, 회원 관리, 주문 관리, 할인/적립금 관리 등 |
 | CI/CD 자동 배포 | GitHub Actions로 push 시 EC2 무중단 배포 자동화 |
 
----
+
 
 ## 🖥️ 화면 설명
 
@@ -75,20 +75,20 @@
     - JWT를 통한 로그인 및 토큰 저장
     
 
----
+
 
 ## 🔗 GitHub Repository
 
 - **Backend**: https://github.com/Yerinnnn/shoppingmall-backend
 - **Frontend**: https://github.com/Yerinnnn/shoppingmall-frontend
 
----
+
 
 ## 🚀 배포 주소
 
 - http://ubu-the-bear.shop/
 
----
+
 
 ## 🧩 추가 설명
 
